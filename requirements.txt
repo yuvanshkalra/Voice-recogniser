@@ -1,1 +1,10 @@
-
+streamlit
+numpy
+scipy
+librosa
+scikit-learn
+firebase-admin
+streamlit-audiorec
+pandas
+seaborn
+matplotlib
