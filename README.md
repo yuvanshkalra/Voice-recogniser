@@ -1,118 +1,422 @@
 
-# 🎙️ Voice Recogniser — ML-Based Speaker Identification
 
-An interactive speaker-recognition application built with Python, Streamlit, and machine learning. The application captures voice recordings, extracts meaningful audio features, and uses a Random Forest classifier to identify speakers from their voice samples.
+# SSO Consultants Voice Recogniser 🎙️
+
+### Machine Learning-Based Actor & Actress Voice Identification
+
+[![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Framework-Streamlit-FF4B4B?logo=streamlit)](https://streamlit.io/)
+[![Machine Learning](https://img.shields.io/badge/ML-Random%20Forest-green)](https://scikit-learn.org/)
+[![Audio Processing](https://img.shields.io/badge/Audio-Librosa-orange)](https://librosa.org/)
+[![Firebase](https://img.shields.io/badge/Cloud-Firebase-FFCA28?logo=firebase)](https://firebase.google.com/)
+
+**SSO Consultants Voice Recogniser** is a machine learning-based speaker identification application built with Python and Streamlit. It identifies known actors and actresses from their voice recordings using Mel-Frequency Cepstral Coefficients (MFCCs) and a Random Forest classifier.
+
+The application supports live voice recording and WAV file uploads, stores voice samples in Firebase Cloud Storage, maintains actor metadata in Cloud Firestore, and provides an administrator interface for collecting training data, retraining the model, and managing actor information.
+
+---
+
+## 📌 Table of Contents
+
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [How It Works](#-how-it-works)
+- [Machine Learning Pipeline](#-machine-learning-pipeline)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Running the Application](#-running-the-application)
+- [Using the Application](#-using-the-application)
+- [Model Evaluation](#-model-evaluation)
+- [Firebase Data Organization](#-firebase-data-organization)
+- [Limitations](#-limitations)
+- [Future Improvements](#-future-improvements)
+- [Author](#-author)
+
+---
 
 ## 🚀 Overview
 
-Voice Recogniser is a machine-learning project designed to explore speaker identification through audio signal processing and supervised learning.
+Identifying a speaker from an audio recording is a speaker recognition problem in which a machine learning model learns patterns from known speakers and predicts which enrolled speaker most closely matches a new recording.
 
-The application combines audio recording, feature extraction, model training, speaker-label mapping, and Firebase integration in a web-based interface.
+This project applies audio signal processing and supervised machine learning to recognize registered actors and actresses from their voice samples.
 
-### ✨ Key Features
+The application combines:
 
-- **Voice Recording:** Capture audio samples through an interactive Streamlit interface.
-- **Audio Feature Extraction:** Extract Mel-Frequency Cepstral Coefficients (MFCCs) using Librosa.
-- **Machine Learning:** Use a Random Forest classifier for speaker identification.
-- **Model Evaluation:** Evaluate classification performance using accuracy, classification reports, and confusion matrices.
-- **Firebase Integration:** Integrate Firebase Storage and Cloud Firestore for audio and metadata management.
-- **Data Management:** Use Pandas to manage and organize speaker-related information.
-- **Visual Analytics:** Generate visualizations to inspect model performance.
-- **Interactive UI:** Access the application's functionality through a browser-based Streamlit interface.
+- Audio recording and playback
+- MFCC-based feature extraction
+- Random Forest classification
+- Model training and evaluation
+- Firebase-based audio storage
+- Cloud Firestore metadata management
+- A Streamlit interface with administrator and user roles
 
-## 🧠 How It Works
+### 🎯 Project Objectives
 
-The application follows a speaker-recognition pipeline:
+- Build a voice-based speaker identification system.
+- Extract useful acoustic features from recorded speech.
+- Train a supervised machine learning model on labeled voice samples.
+- Identify known speakers from new audio recordings.
+- Store voice datasets and trained model artifacts in Firebase.
+- Display relevant metadata for recognized actors and actresses.
+- Evaluate classification performance using standard machine learning metrics.
 
-1. **Audio Input:** Record voice samples using the application's audio recording interface.
-2. **Preprocessing:** Load and process audio signals into a suitable format.
-3. **Feature Extraction:** Extract MFCC features using Librosa to represent important characteristics of the voice.
-4. **Model Training:** Train a Random Forest classifier on labelled speaker samples.
-5. **Prediction:** Use the trained model to classify a voice recording.
-6. **Evaluation:** Assess model performance using classification metrics and a confusion matrix.
-7. **Storage:** Integrate Firebase services for audio storage and speaker metadata management.
+---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
+
+### 1. 🎙️ Live Voice Recognition
+
+Users can record audio directly through the application's microphone interface.
+
+The recorded audio is processed using the trained machine learning model, and the predicted speaker's name is displayed along with available metadata.
+
+### 2. 📂 WAV File Recognition
+
+- Upload a WAV audio file.
+- Preview the uploaded recording.
+- Extract MFCC features from the audio.
+- Predict the identity of the most likely enrolled speaker.
+- Display additional information associated with the predicted identity.
+
+The current file-upload interface accepts WAV files only.
+
+### 3. 🧠 MFCC Feature Extraction
+
+The application uses Librosa to extract 13 Mel-Frequency Cepstral Coefficients (MFCCs) from audio recordings.
+
+MFCCs represent important characteristics of the short-term spectral envelope of audio signals and are commonly used in speech and speaker recognition systems.
+
+The application averages the MFCC values across time to produce a fixed-length feature vector for each recording.
+
+### 4. 🌲 Random Forest Classification
+
+A Random Forest classifier learns patterns from the extracted audio features and their corresponding speaker labels.
+
+The model is configured with:
+
+- 150 decision trees (`n_estimators=150`)
+- Maximum tree depth of 10
+- Minimum of 5 samples per leaf
+- Balanced class weights
+- A fixed random state for reproducibility
+
+The trained model predicts the speaker associated with an input recording.
+
+### 5. ☁️ Firebase Cloud Integration
+
+The application uses Firebase for persistent storage and metadata management.
+
+**Firebase Cloud Storage**
+- Stores WAV training recordings.
+- Stores the trained Random Forest model.
+- Stores the speaker ID-to-label mapping.
+
+**Cloud Firestore**
+- Stores actor and actress metadata.
+- Retrieves information associated with predicted speakers.
+- Supports editing and updating existing metadata.
+
+### 6. 👨‍💼 Administrator Dashboard
+
+The administrator interface provides three primary workflows.
+
+**Add Speaker Data**
+- Enter the actor's or actress's name.
+- Record five voice samples.
+- Enter age, height, total films, hit films, and industry.
+- Upload the recordings to Firebase.
+- Save metadata in Firestore.
+- Retrain the recognition model.
+
+**Retrain Model**
+- Reload available voice samples from Firebase.
+- Extract audio features.
+- Train a new Random Forest model.
+- Evaluate the model on a held-out test set.
+- Save and upload the trained model and label mapping.
+
+**View/Update Actor Details**
+- View existing actor and actress records.
+- Edit metadata in an interactive table.
+- Save changes to Cloud Firestore.
+
+### 7. 📊 Model Evaluation and Visualization
+
+During model training, the application displays:
+
+- Training and testing sample counts
+- Test-set accuracy
+- Classification report
+- Confusion matrix
+
+These outputs help assess how well the classifier distinguishes between the enrolled speakers.
+
+### 8. 🔐 Role-Based Application Interface
+
+The application separates access into two roles:
+
+| Role | Capabilities |
+|---|---|
+| Administrator | Record training data, manage metadata, retrain the model |
+| User | Identify speakers using uploaded WAV files or live recordings |
+
+Login credentials are configured through Streamlit secrets.
+
+---
+
+## ⚙️ How It Works
+
+```text
+          ┌──────────────────────────┐
+          │ Administrator Records    │
+          │ Speaker Voice Samples    │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Firebase Cloud Storage   │
+          │ Labeled WAV Recordings   │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Audio Preprocessing      │
+          │ Librosa                  │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ MFCC Feature Extraction  │
+          │ 13 Coefficients          │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Random Forest Classifier │
+          │ Train / Test Split       │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Save Model and Labels    │
+          │ Firebase Storage         │
+          └──────────────────────────┘
+
+
+          ───── Recognition Workflow ─────
+
+          ┌──────────────────────────┐
+          │ Live Recording or WAV    │
+          │ File Upload              │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Extract 13 MFCC Features │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Trained Model Prediction │
+          └────────────┬─────────────┘
+                       │
+                       ▼
+          ┌──────────────────────────┐
+          │ Predicted Speaker Name   │
+          │ + Firestore Metadata     │
+          └──────────────────────────┘
+```
+
+### Workflow Explanation
+
+1. An administrator records five voice samples for a speaker.
+2. The recordings are saved temporarily and uploaded to Firebase Cloud Storage.
+3. Speaker metadata is saved in Cloud Firestore.
+4. The application downloads available WAV recordings and extracts MFCC features.
+5. The labeled feature vectors are divided into training and testing sets.
+6. A Random Forest classifier is trained on the training set.
+7. The model is evaluated using the test set.
+8. The trained classifier and speaker-label mapping are serialized using Python's `pickle` module and uploaded to Firebase.
+9. Users upload a WAV file or record their voice live.
+10. The application extracts features and predicts the speaker's identity.
+11. The speaker's available metadata is retrieved from Firestore and displayed.
+
+---
+
+## 🧪 Machine Learning Pipeline
+
+### Audio Preprocessing
+
+The application loads audio through Librosa at a standardized sample rate of 44,100 Hz.
+
+It checks for recordings that are too short or nearly silent before feature extraction.
+
+### Feature Extraction
+
+The application computes 13 MFCCs:
+
+\[
+\mathbf{x} = [c_1,c_2,\ldots,c_{13}]
+\]
+
+The coefficients are averaged over the recording's time frames, producing a fixed-length representation of each voice sample.
+
+### Dataset Construction
+
+Voice recordings are organized by speaker name in Firebase Storage.
+
+Each recording is assigned a numeric class label corresponding to its speaker.
+
+### Training and Testing
+
+The dataset is split into:
+
+- 80% training data
+- 20% testing data
+
+The split uses `random_state=42` and stratification to preserve speaker proportions.
+
+At least two distinct speakers are required for training. The application also checks whether each speaker has sufficient samples for the split and warns when the dataset is small.
+
+### Classification
+
+The trained Random Forest model predicts a numeric speaker label, which is mapped back to the corresponding speaker name.
+
+---
+
+## 🛠️ Technology Stack
 
 | Technology | Purpose |
 |---|---|
-| Python | Core application and ML logic |
+| Python | Core application logic |
 | Streamlit | Interactive web interface |
-| NumPy | Numerical computation |
-| SciPy | Audio signal processing |
-| Librosa | Audio analysis and MFCC extraction |
-| Scikit-learn | Random Forest classification and evaluation |
-| Pandas | Data manipulation |
-| Matplotlib | Data visualization |
+| NumPy | Numerical operations and feature arrays |
+| SciPy | Audio and WAV-related utilities |
+| Librosa | Audio loading and MFCC feature extraction |
+| Scikit-learn | Random Forest, dataset splitting, and evaluation |
+| Firebase Admin SDK | Cloud Storage and Firestore access |
+| Firebase Cloud Storage | Audio samples and serialized model storage |
+| Cloud Firestore | Speaker metadata management |
+| pandas | Tabular metadata handling |
+| Matplotlib | Model evaluation visualizations |
 | Seaborn | Confusion matrix visualization |
-| Firebase Admin SDK | Firebase Storage and Firestore integration |
-| streamlit-audiorec | Audio recording interface |
+| streamlit-audiorec | Browser-based audio recording |
+| pickle | Model and label serialization |
 
-## 📁 Project Structure
+---
+
+## 📂 Project Structure
 
 ```text
 Voice-recogniser/
 │
-├── app.py            # Main Streamlit application
-├── requirements.txt  # Python dependencies
-├── README.md         # Project documentation
-└── sso_logo.png      # Application logo or visual asset
+├── app.py
+│   ├── Firebase initialization
+│   ├── Audio upload and recording
+│   ├── MFCC feature extraction
+│   ├── Dataset preparation
+│   ├── Random Forest model training
+│   ├── Model evaluation
+│   ├── Speaker prediction
+│   ├── Actor metadata management
+│   └── Streamlit user interface
+│
+├── requirements.txt
+│   └── Python dependencies
+│
+├── sso_logo.png
+│   └── Application branding
+│
+├── README.md
+│   └── Project documentation
+│
+├── .streamlit/
+│   └── secrets.toml             # Create locally; do not commit
+│
+└── temp_recordings/             # Created automatically at runtime
+    ├── Temporary WAV recordings
+    ├── Downloaded model files
+    └── Temporary label mapping
 ```
 
-The application may also create temporary recordings and model artifacts during execution.
+The `.streamlit/secrets.toml` and `temp_recordings/` entries describe local configuration and runtime files, not additional tracked files in the repository.
 
-## ⚙️ Installation and Setup
+---
 
-### Prerequisites
+## 💻 Prerequisites
 
-- Python installed on your system
-- Git
-- A working microphone
-- A Firebase project if you want to use cloud storage and metadata features
+Before running the application, ensure that you have:
+
+- Python installed
+- pip package manager
+- A microphone for live voice recording
+- A Firebase project
+- Firebase Admin SDK service-account credentials
+- A configured Firebase Storage bucket
+- Cloud Firestore enabled
+- Appropriate access permissions for the Firebase resources
+
+---
+
+## 📥 Installation
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yuvanshkalra/Voice-recogniser.git
+```
+
+### 2. Navigate to the Project Directory
+
+```bash
 cd Voice-recogniser
 ```
 
-### 2. Create a Virtual Environment
-
-**Windows:**
+### 3. Create a Virtual Environment
 
 ```bash
 python -m venv venv
+```
+
+Activate the environment.
+
+**Windows**
+
+```bash
 venv\Scripts\activate
 ```
 
-**Linux / macOS:**
+**macOS / Linux**
 
 ```bash
-python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
+### 4. Install Dependencies
 
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 🔥 Firebase Configuration
+The project uses `streamlit-audiorec` for browser-based microphone recording. Ensure the component works with your installed Streamlit version and browser.
 
-The application uses the Firebase Admin SDK to connect to Firebase services.
+---
 
-To configure your own Firebase project:
+## 🔑 Configuration
 
-1. Create a project in the [Firebase Console](https://console.firebase.google.com/).
-2. Enable Cloud Firestore and Firebase Storage as required.
-3. Generate a service account credential securely from your Firebase project settings.
-4. Configure the service account JSON and storage bucket for the application.
-5. Set the required values in Streamlit secrets.
+The application requires Firebase credentials and login credentials through Streamlit secrets.
 
-Create `.streamlit/secrets.toml`:
+Create this file:
+
+```text
+.streamlit/secrets.toml
+```
+
+### Firebase Configuration
 
 ```toml
 [firebase]
@@ -127,87 +431,214 @@ service_account_json = '''
   "token_uri": "https://oauth2.googleapis.com/token"
 }
 '''
+
 storage_bucket = "YOUR_FIREBASE_STORAGE_BUCKET"
 ```
 
-Replace the placeholder values with your actual service account details. Use the complete JSON credential provided by Firebase, including any additional fields it contains.
+Replace the example values with the actual service-account JSON fields and storage bucket name.
 
-**Security:** Never commit Firebase credentials, private keys, or populated secrets files to GitHub. Keep them in your local secrets configuration or your deployment platform's secret manager.
+### Login Configuration
 
-The application also contains a local credential-file fallback. If you use that approach, configure the expected `firebase_service_account.json` file securely and ensure it is excluded from version control.
+The application expects one administrator account and two regular user accounts to be configured.
 
-## ▶️ Run the Application
+```toml
+[login]
+admin_username = "your_admin_username"
+admin_password = "your_admin_password"
 
-Start the Streamlit application from the project directory:
+user1_username = "your_first_user_username"
+user1_password = "your_first_user_password"
+
+user2_username = "your_second_user_username"
+user2_password = "your_second_user_password"
+```
+
+Replace all example usernames and passwords with your own credentials.
+
+**Security requirements**
+
+- Never upload service-account JSON files or `secrets.toml` to GitHub.
+- Use strong, unique passwords.
+- Restrict access to the Firebase service account.
+- Configure the actual storage bucket for your Firebase project.
+- The application contains a hardcoded fallback bucket name for local initialization; verify it matches your project if using that fallback.
+- The current login implementation compares credentials configured in Streamlit secrets. Use a stronger authentication system before deploying the application for production use.
+
+For Streamlit Community Cloud, add the required secrets through the application's deployment settings.
+
+---
+
+## ▶️ Running the Application
+
+After installing the dependencies and configuring Firebase and login credentials, run:
 
 ```bash
 streamlit run app.py
 ```
 
-Streamlit will display a local URL in the terminal. Open that URL in your browser to access the application.
+Open the local URL displayed in the terminal, typically:
 
-## 📊 Machine Learning Approach
+```text
+http://localhost:8501
+```
 
-### Feature Extraction
+Log in using the configured administrator or user credentials.
 
-The project uses Mel-Frequency Cepstral Coefficients (MFCCs) to represent characteristics of the recorded audio.
+---
 
-MFCCs are widely used in speech and speaker-recognition systems because they capture information about the spectral envelope of an audio signal.
+## 👨‍💼 Using the Application
 
-### Classification Algorithm
+### Administrator Workflow
 
-The application uses a Random Forest classifier from Scikit-learn.
+1. Select **Admin Login**.
+2. Enter the configured administrator credentials.
+3. Open **Admin Panel: Add Speaker Data**.
+4. Enter a speaker's name and metadata.
+5. Record five separate voice samples, approximately five seconds each.
+6. Upload the samples and save the metadata.
+7. Allow the application to train and evaluate the updated model.
+8. Use **View/Update Actor Details** to edit saved metadata when needed.
 
-Random Forest combines multiple decision trees to produce a classification prediction. Its performance depends on the quality of the audio features, training samples, and speaker labels.
+### User Workflow
 
-### Model Evaluation
+1. Select **User Login**.
+2. Enter the configured user credentials.
+3. Choose **Recognize Speaker from File** or **Recognize Speaker Live**.
+4. Upload a WAV file or record a voice sample.
+5. Review the predicted speaker and any available actor metadata.
 
-The code includes tools for evaluating the classifier:
+Recognition requires a trained model and a dataset containing the enrolled speakers.
 
-- Accuracy score
-- Classification report
-- Confusion matrix
+---
 
-Actual accuracy and other performance metrics should be measured on held-out recordings. No performance figure is claimed here.
+## 📊 Model Evaluation
 
-## 🎯 Applications
+The application evaluates the trained model on a held-out test set.
 
-- Speaker identification experiments
-- Voice-based ML demonstrations
-- Audio signal processing projects
-- Educational demonstrations of supervised learning
-- Prototyping voice-enabled applications
+### Metrics and Visualizations
+
+**Accuracy**
+
+Measures the proportion of test samples classified correctly.
+
+\[
+\text{Accuracy} =
+\frac{\text{Correct Predictions}}{\text{Total Predictions}}
+\]
+
+**Classification Report**
+
+Displays precision, recall, F1-score, and support for each speaker class.
+
+**Confusion Matrix**
+
+Visualizes actual versus predicted speaker labels to help identify which speakers the model confuses.
+
+The application does not establish a guaranteed recognition accuracy. Performance depends on dataset size, recording quality, speaker diversity, and the similarity of voices in the enrolled dataset.
+
+---
+
+## ☁️ Firebase Data Organization
+
+### Cloud Storage
+
+The application uses the following storage organization:
+
+```text
+Firebase Storage/
+│
+├── data/
+│   ├── Speaker_Name_1/
+│   │   ├── sample_1.wav
+│   │   ├── sample_2.wav
+│   │   └── ...
+│   │
+│   └── Speaker_Name_2/
+│       ├── sample_1.wav
+│       └── ...
+│
+├── speaker_recognition_model.pkl
+└── id_to_label_map.pkl
+```
+
+The application loads WAV recordings from the `data/` prefix and stores the trained model and label mapping at the bucket's root.
+
+### Cloud Firestore
+
+Speaker metadata is stored in the `actors_actresses_metadata` collection.
+
+Each document uses the speaker's name as its document ID and may contain:
+
+| Field | Description |
+|---|---|
+| `age` | Actor's or actress's age |
+| `height` | Recorded height |
+| `total_films` | Total number of films |
+| `hit_films` | Number of hit films |
+| `industry` | Film industry |
+| `last_updated` | Firestore server timestamp |
+
+---
 
 ## ⚠️ Limitations
 
-- Recognition performance depends on recording quality, background noise, and the available training samples.
-- A speaker may be misclassified when their recording conditions differ significantly from the training data.
-- The application requires suitable audio-recording support in the environment where it runs.
-- Firebase-dependent features require valid credentials and correctly configured cloud resources.
-- Speaker identification is not the same as speech-to-text transcription or voice authentication.
+- The model identifies speakers enrolled in its training dataset; it is not a general speech-to-text system.
+- Recognition is limited by the available voice samples and their quality.
+- The application uses a relatively simple 13-dimensional MFCC representation.
+- The current pipeline does not implement a dedicated unknown-speaker rejection threshold.
+- A predicted speaker label does not guarantee that the speaker is correctly identified.
+- The model requires retraining when new speakers are added.
+- The current implementation supports WAV uploads rather than arbitrary audio formats.
+- The model's test-set accuracy may not reflect performance on recordings from entirely new environments.
+- The application stores serialized model artifacts using pickle; only trusted model files should be loaded.
+
+---
 
 ## 🔮 Future Improvements
 
-- Add a dedicated interface for uploading audio files.
-- Improve robustness against background noise.
-- Evaluate performance using a larger and more diverse speaker dataset.
-- Add cross-validation and more detailed model evaluation.
-- Compare Random Forest with alternative speaker-recognition algorithms.
-- Add automated tests and continuous integration.
-- Improve deployment configuration and secret management.
+Potential enhancements include:
+
+- Speaker embeddings using modern deep learning architectures.
+- More robust voice activity detection and noise reduction.
+- Improved handling of background noise and varying microphones.
+- Confidence calibration and unknown-speaker rejection.
+- Larger and more balanced training datasets.
+- Cross-validation and hyperparameter optimization.
+- More detailed recognition history and analytics.
+- Stronger authentication and role management.
+- Automated tests for audio processing and model prediction.
+- Improved model versioning and deployment workflows.
+
+---
+
+## 🎓 Learning Outcomes
+
+This project demonstrates practical experience with:
+
+- Audio signal processing
+- MFCC-based feature engineering
+- Supervised machine learning
+- Random Forest classification
+- Model evaluation and confusion matrices
+- Python application development
+- Streamlit interface development
+- Firebase Cloud Storage and Firestore
+- Real-time audio capture
+- Model serialization and deployment
+
+---
 
 ## 👨‍💻 Author
 
 **Yuvansh Kalra**
 
-GitHub: [@yuvanshkalra](https://github.com/yuvanshkalra)
-
-Project Repository: [Voice-recogniser](https://github.com/yuvanshkalra/Voice-recogniser)
-
-## 📄 License
-
-No license is specified in this repository. Contact the repository owner for permission before redistributing or reusing the project.
+- GitHub: [@yuvanshkalra](https://github.com/yuvanshkalra)
+- Repository: [Voice-recogniser](https://github.com/yuvanshkalra/Voice-recogniser)
 
 ---
 
-⭐ If you find this project useful, consider starring the repository.
+## ⚖️ Disclaimer
+
+This project is intended for educational and experimental speaker identification. Predictions may be inaccurate, and the application should not be used as the sole basis for identity verification, authentication, or other high-stakes decisions.
+
+Voice recordings are biometric information. Obtain appropriate consent before collecting or
